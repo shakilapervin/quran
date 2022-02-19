@@ -1,0 +1,44 @@
+
+.countWidget{
+    border-radius: 20px;
+    background: #ffffff;
+    text-align: center;
+    padding: 70px 10px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.countWidget p:first-child{
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 10px !important;
+}
+.countWidget p:last-child{
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+}
+.blue{
+    color: #3b82f6;
+}
+.red{
+    color: #ef4444;
+}
+.orange{
+    color: #f59e0b;
+}
+.green{
+    color: #22c55e;
+}
+.latestOrderWrapper{
+    background: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+.widgetTitle{
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 20px !important;
+    display: block;
+}
