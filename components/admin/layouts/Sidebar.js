@@ -2,6 +2,7 @@ import styles from './Sidebar.module.css';
 import CustomImage from './../../CustomImage';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { signOut } from 'next-auth/react';
 export default function Sidebar({ user }) {
     const router = useRouter();
     return (
@@ -14,7 +15,7 @@ export default function Sidebar({ user }) {
             </p>
             <ul className={styles.menu}>
                 <li>
-                    <Link href="/">
+                    <Link href="/admin">
                         <a
                             className={
                                 router.pathname == '/admin' ? styles.active : ''
@@ -31,13 +32,26 @@ export default function Sidebar({ user }) {
                             className={
                                 router.pathname == '/admin/sura' ||
                                 router.pathname == '/admin/sura/add-new' ||
-                                router.pathname == '/admin/sura/[id]' 
+                                router.pathname == '/admin/sura/[id]'
                                     ? styles.active
                                     : ''
                             }
                         >
                             <span className="fi fi-rr-book"></span>
                             Manage Sura
+                        </a>
+                    </Link>
+                </li>
+                <li>
+                    <Link href="/api/auth/signout">
+                        <a
+                            onClick={(e) => {
+                                e.preventDefault();
+                                signOut();
+                            }}
+                        >
+                            <span className="fi fi-rr-sign-out-alt"></span>
+                            Logout
                         </a>
                     </Link>
                 </li>

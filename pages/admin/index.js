@@ -5,8 +5,10 @@ import Layout from '../../components/admin/layouts/Layout';
 import styles from '../../styles/Dashboard.module.css';
 import db from '../../utils/db';
 import User from '../../models/User';
+import Sura from '../../models/Sura';
+import Chapter from '../../models/Chapter';
 
-export default function Dashboard({ user }) {
+export default function Dashboard({ user, suraNumber, chapterNumber }) {
     return (
         <>
             <Head>
@@ -21,22 +23,18 @@ export default function Dashboard({ user }) {
                 <div className="widgetArea">
                     <div className="content">
                         <div className="row g-5">
-                            <div className="col-md-4">
+                            <div className="col-md-6">
                                 <div className={styles.countWidget}>
-                                    <p className={styles.blue}>21</p>
+                                    <p className={styles.blue}>{suraNumber}</p>
                                     <p className={styles.blue}>Total Sura</p>
                                 </div>
                             </div>
-                            <div className="col-md-4">
+                            <div className="col-md-6">
                                 <div className={styles.countWidget}>
-                                    <p className={styles.red}>21</p>
-                                    <p className={styles.red}>Total Para</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className={styles.countWidget}>
-                                    <p className={styles.orange}>21</p>
-                                    <p className={styles.orange}>Total Ayat</p>
+                                    <p className={styles.red}>
+                                        {chapterNumber}
+                                    </p>
+                                    <p className={styles.red}>Total Ayat</p>
                                 </div>
                             </div>
                         </div>
@@ -58,6 +56,8 @@ export async function getServerSideProps(context) {
 
     await db.connect();
     const user = await User.findOne({ email: session.user.email }).lean();
+    const suraNumber = await Sura.find({}).lean().count();
+    const chapterNumber = await Chapter.find({}).lean().count();
     await db.disconnect();
     if (!user) {
         return {
@@ -69,6 +69,8 @@ export async function getServerSideProps(context) {
     return {
         props: {
             user: db.convertDocToObj(user),
+            suraNumber,
+            chapterNumber,
         },
     };
 }
