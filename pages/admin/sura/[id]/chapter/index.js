@@ -68,7 +68,9 @@ export default function ChapterList({ user, chapters, sura, id }) {
                                         style={{ verticalAlign: 'middle' }}
                                     >
                                         <td>{index + 1}</td>
-                                        <td>{el.arabicTitle}</td>
+                                        <td dir="rtl" className="text-start">
+                                            {el.arabicTitle}
+                                        </td>
                                         <td>{el.banglaTitle}</td>
                                         <td>
                                             <Link

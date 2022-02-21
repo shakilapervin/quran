@@ -66,7 +66,7 @@ export default function SuraList({user, suras}) {
                                     >
                                         <td>{index + 1}</td>
                                         <td>{el.banglaName}</td>
-                                        <td>{el.arabicName}</td>
+                                        <td dir='rtl' className='text-start'>{el.arabicName}</td>
                                         <td>
                                             <Link
                                                 href={`/admin/sura/${el._id}`}
