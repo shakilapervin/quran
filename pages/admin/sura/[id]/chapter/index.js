@@ -122,7 +122,7 @@ export async function getServerSideProps(context) {
     await db.connect();
     const user = await User.findOne({ email: session.user.email }).lean();
     const sura = await Sura.findOne({ _id: id }).lean();
-    const chapters = await Chapter.find({}).lean();
+    const chapters = await Chapter.find({ sura : id}).lean();
     await db.disconnect();
     if (!user) {
         return {
