@@ -5,6 +5,8 @@
     height: 100vh;
     display: block;
     overflow: hidden;
+    position: fixed;
+    width: 16.66666667%;
 }
 .avatar {
     border-radius: 50%;

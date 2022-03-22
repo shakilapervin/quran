@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import Layout from '../../../../../components/admin/layouts/Layout';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
@@ -6,21 +5,38 @@ import axios from 'axios';
 import db from '../../../../../utils/db';
 import Chapter from '../../../../../models/Chapter';
 import User from '../../../../../models/User';
+import dynamic from "next/dynamic";
+import React, { useState  } from "react";
+import $ from 'jquery';
+const JoditEditor = dynamic(
+    () => {
+        return import("jodit-react");
+    },
+    { ssr: false }
+);
 
 export default function Edit({ user, id, chapter }) {
+    const config = {
+        readonly: false,
+        height: 400,
+    };
+
+
     const [success, setSuccess] = useState(null);
     const [error, setError] = useState(null);
     const handleForm = async (e) => {
         e.preventDefault();
         const arabicTitle = e.target.arabicTitle.value;
         const banglaTitle = e.target.banglaTitle.value;
-        const banglaTafsil = e.target.banglaTafsil.value;
+        const banglaTafsil = $('.tafsilShort .jodit-wysiwyg').html();
+        const banglaTafsil2 = $('.tafsilLong .jodit-wysiwyg').html();
         const serial = e.target.serial.value;
         try {
             const response = await axios.post('/api/chapter/update', {
                 arabicTitle: arabicTitle,
                 banglaTitle: banglaTitle,
                 banglaTafsil: banglaTafsil,
+                banglaTafsil2: banglaTafsil2,
                 serial: serial,
                 id: id,
             });
@@ -69,35 +85,26 @@ export default function Edit({ user, id, chapter }) {
                             >
                                 <div className="form-group mb-2">
                                     <label>Arabic</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="arabicTitle"
-                                        id="arabicTitle"
-                                        dir="rtl"
-                                        defaultValue={chapter.arabicTitle}
-                                    />
+                                    <textarea name="arabicTitle" className="form-control" rows="5" dir="rtl"
+                                              defaultValue={chapter.arabicTitle}></textarea>
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Bangla</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="banglaTitle"
-                                        id="banglaTitle"
-                                        defaultValue={chapter.banglaTitle}
+                                    <textarea name="banglaTitle" className="form-control" rows="5"
+                                              defaultValue={chapter.banglaTitle}></textarea>
+                                </div>
+                                <div className="form-group mb-2 tafsilShort">
+                                    <label>Short Tafsil</label>
+                                    <JoditEditor
+                                        config={config}
+                                        value={chapter.banglaTafsil}
                                     />
                                 </div>
-                                <div className="form-group mb-2">
-                                    <label>Tafsil</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        name="banglaTafsil"
-                                        id="banglaTafsil"
-                                        defaultValue={chapter.banglaTafsil}
+                                <div className="form-group mb-2 tafsilLong">
+                                    <label>Long Tafsil</label>
+                                    <JoditEditor
+                                        config={config}
+                                        value={chapter.banglaTafsil2}
                                     />
                                 </div>
                                 <div className="form-group mb-2">

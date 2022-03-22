@@ -12,6 +12,7 @@ handler.post(async (req,res) => {
                 arabicTitle: req.body.arabicTitle,
                 banglaTitle: req.body.banglaTitle,
                 banglaTafsil: req.body.banglaTafsil,
+                banglaTafsil2: req.body.banglaTafsil2,
                 sura: req.body.id,
                 serial: req.body.serial,
             });

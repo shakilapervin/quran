@@ -9,6 +9,7 @@ handler.post(async (req, res) => {
         const arabicTitle = req.body.arabicTitle;
         const banglaTitle = req.body.banglaTitle;
         let banglaTafsil = req.body.banglaTafsil;
+        let banglaTafsil2 = req.body.banglaTafsil2;
         let serial = req.body.serial;
         let id = req.body.id;
         if (arabicTitle == '') {
@@ -34,6 +35,7 @@ handler.post(async (req, res) => {
         await db.connect();
         const chapter = await Chapter.findByIdAndUpdate(id, {
             banglaTafsil: banglaTafsil,
+            banglaTafsil2: banglaTafsil2,
             banglaTitle: banglaTitle,
             arabicTitle: arabicTitle,
             serial: serial,

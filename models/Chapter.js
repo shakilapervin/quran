@@ -12,6 +12,9 @@ const chapterSchema = new mongoose.Schema(
         banglaTafsil: {
             type: String,
         },
+        banglaTafsil2: {
+            type: String,
+        },
         sura: {
             type: String,
             required: true,
@@ -23,6 +26,7 @@ const chapterSchema = new mongoose.Schema(
     },
     {
         timestamps: true,
+        strict: false
     }
 );
 

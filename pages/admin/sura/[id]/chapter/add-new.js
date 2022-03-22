@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Layout from '../../../../../components/admin/layouts/Layout';
@@ -8,20 +8,33 @@ import $ from 'jquery';
 import db from '../../../../../utils/db';
 import User from '../../../../../models/User';
 import Sura from '../../../../../models/Sura';
+import dynamic from "next/dynamic";
+const JoditEditor = dynamic(
+    () => {
+        return import("jodit-react");
+    },
+    { ssr: false }
+);
 export default function AddNewChapter({ user, sura, id }) {
+    const config = {
+        readonly: false,
+        height: 400,
+    };
     const [success, setSuccess] = useState(null);
     const [error, setError] = useState(null);
     const handleForm = async (e) => {
         e.preventDefault();
         const arabicTitle = e.target.arabicTitle.value;
         const banglaTitle = e.target.banglaTitle.value;
-        const banglaTafsil = e.target.banglaTafsil.value;
+        const banglaTafsil = $('.tafsilShort .jodit-wysiwyg').html();
+        const banglaTafsil2 = $('.tafsilLong .jodit-wysiwyg').html();
         const serial = e.target.serial.value;
         try {
             const response = await axios.post('/api/chapter/save', {
                 arabicTitle: arabicTitle,
                 banglaTitle: banglaTitle,
                 banglaTafsil: banglaTafsil,
+                banglaTafsil2: banglaTafsil2,
                 serial: serial,
                 id: id,
             });
@@ -69,32 +82,22 @@ export default function AddNewChapter({ user, sura, id }) {
                                 <form onSubmit={handleForm} id='form'>
                                     <div className="form-group mb-2">
                                         <label>Arabic</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            required
-                                            name="arabicTitle"
-                                            id="arabicTitle"
-                                            dir="rtl"
-                                        />
+                                        <textarea name="arabicTitle" className="form-control" rows="5" dir="rtl"></textarea>
                                     </div>
                                     <div className="form-group mb-2">
                                         <label>Bangla</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            required
-                                            name="banglaTitle"
-                                            id="banglaTitle"
+                                        <textarea name="banglaTitle" className="form-control" rows="5"></textarea>
+                                    </div>
+                                    <div className="form-group mb-2 tafsilShort">
+                                        <label>Short Tafsil</label>
+                                        <JoditEditor
+                                            config={config}
                                         />
                                     </div>
-                                    <div className="form-group mb-2">
-                                        <label>Tafsil</label>
-                                        <input
-                                            type="text"
-                                            className="form-control"
-                                            name="banglaTafsil"
-                                            id="banglaTafsil"
+                                    <div className="form-group mb-2 tafsilLong">
+                                        <label>Long Tafsil</label>
+                                        <JoditEditor
+                                            config={config}
                                         />
                                     </div>
                                     <div className="form-group mb-2">
