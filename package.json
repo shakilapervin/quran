@@ -14,7 +14,7 @@
         "jodit": "^3.16.3",
         "jodit-react": "^1.2.18",
         "jquery": "^3.6.0",
-        "mongoose": "^6.2.0",
+        "mongoose": "^6.3.1",
         "next": "^12.1.0",
         "next-auth": "^4.2.1",
         "next-connect": "^0.12.1",
