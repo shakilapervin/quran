@@ -69,7 +69,7 @@ export async function getServerSideProps({query}) {
         {
             $match: {arabicTitle: new RegExp(keyword, 'i')}
         },
-        {$addFields: {suraId: {$toObjectId: "$sura"}}},
+        {'$addFields': {'suraId': {'$toObjectId': "$sura"}}},
         {
             $lookup: {
                 from: 'suras',
