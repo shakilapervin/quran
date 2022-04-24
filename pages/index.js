@@ -1,18 +1,42 @@
-import Head from "next/head";
-import Image from 'next/image'
+import Head from 'next/head';
+import CustomImage from '../components/CustomImage';
+import SearchByText from '../components/frontend/SearchByText';
+import Link from 'next/link';
+import styles from '../styles/Home.module.css'
 
-export default function Index() {
+export default function Home() {
     return (
         <>
             <Head>
-                <title>Coming Soon</title>
+                <title>پارس قرآن : جستجوي قرآن</title>
+                <meta
+                    name="description"
+                    content="جستجوگر قرآن به سه زبان فارسي ، عربي و انگليسي. مقالات و نرم افزارهاي قرآني. تلاوت قرآن. ترجمه هاي مختلف قرآن"
+                />
+                <meta
+                    name="keyword"
+                    content="قران , فارسي , قرآن کريم , قرآن مجيد , فارسي , انگليسي, قرآن ,  عربي , عربي , ترجمه , جستجو , quran, iran, koran, islam, god, قران کریم"
+                />
             </Head>
-            <div style={{'width' : '100px', 'margin' : '60px auto'}}>
-                <Image src='/logo.jpg' width={100} height={100}/>
+            <div className={styles.topArea} dir="rtl">
+                <div className="container">
+                    <div className="row align-items-center">
+                        <div className="col-md-3">
+                            <div className={styles.logo}>
+                                <CustomImage src="/logo.png" href="/"/>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <SearchByText/>
+                        </div>
+                        <div className="col-md-3 text-center">
+                            <Link href="#">
+                                <a>বাংলা</a>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <h1 style={{'text-align': 'center'}}>
-                Coming Soon
-            </h1>
         </>
-    )
+    );
 }

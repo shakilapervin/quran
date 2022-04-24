@@ -3,3 +3,17 @@
     text-align: right;
     font-family: 'Noto Naskh Arabic', serif;
 }
+
+.topArea a {
+    color: #000000;
+    transition: 0.2s;
+}
+
+.topArea a:hover {
+    color: #4834d4;
+}
+.logo{
+    width: 80px;
+    overflow: hidden;
+    margin: 0 auto;
+}

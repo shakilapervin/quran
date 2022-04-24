@@ -1,0 +1,23 @@
+.totalWrapper {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px 10px;
+    margin: 20px auto;
+}
+
+.results {
+    padding: 15px 10px;
+}
+
+.item a {
+    text-decoration: underline !important;
+    transition: 0.2s;
+}
+
+.item a:hover {
+    color: #4834d4;
+}
+
+.chapter {
+    font-size: 26px;
+    margin-top: 15px;
+}

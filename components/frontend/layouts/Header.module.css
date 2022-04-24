@@ -1,0 +1,8 @@
+.header a{
+    font-size: 14px;
+    color: #000000;
+    transition: 0.2s;
+}
+.header a:hover{
+    color: #4834d4;
+}
