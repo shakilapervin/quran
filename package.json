@@ -2,9 +2,9 @@
     "name": "quran",
     "private": true,
     "scripts": {
-        "dev": "next dev -p 3000",
+        "dev": "node server.js",
         "build": "next build",
-        "start": "next start -p 80",
+        "start": "NODE_ENV=production node server.js",
         "lint": "next lint"
     },
     "dependencies": {
