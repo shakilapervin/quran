@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import CustomImage from '../components/CustomImage';
 import SearchByText from '../components/frontend/SearchByText';
+import SearchBySura from '../components/frontend/SearchBySura';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css'
 
@@ -33,6 +34,13 @@ export default function Home() {
                             <Link href="#">
                                 <a>বাংলা</a>
                             </Link>
+                        </div>
+                    </div>
+                </div>
+                <div className="container mt-5">
+                    <div className="row">
+                        <div className="col-md-4">
+                            <SearchBySura/>
                         </div>
                     </div>
                 </div>

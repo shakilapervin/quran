@@ -11,6 +11,7 @@ const suraSchema = new mongoose.Schema(
         },
         serial: {
             type: Number,
+            unique:true,
             required: true,
         },
     },

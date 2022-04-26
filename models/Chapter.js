@@ -22,6 +22,7 @@ const chapterSchema = new mongoose.Schema(
         serial: {
             type: Number,
             required: true,
+            unique:true,
         },
     },
     {
