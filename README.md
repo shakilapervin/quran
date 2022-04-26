@@ -8,6 +8,7 @@ First, run the development server:
 npm run dev
 # or
 yarn dev
+pm2 start npm --name quran -- start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

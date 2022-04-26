@@ -7,7 +7,7 @@ import styles from '../styles/Search.module.css';
 import {toArabic} from 'arabic-digits';
 import Link from "next/link";
 
-export default function Search({results, keyword, total}) {
+export default function Search({results, keyword, total, totalPages, page}) {
     return (
         <>
             <Head>
@@ -24,6 +24,7 @@ export default function Search({results, keyword, total}) {
                                         <input type="text" defaultValue={keyword} className={`form-control`}
                                                name={`keyword`}/>
                                     </div>
+                                    <input type="hidden" name='page' defaultValue={0}/>
                                     <div className="col-4">
                                         <button className={`btn btn-dark`} type={`submit`}>جستجو</button>
                                     </div>
@@ -54,6 +55,19 @@ export default function Search({results, keyword, total}) {
                             )
                         }
                     </div>
+                    <nav className={`float-end`}>
+                        <ul className="pagination mt-3">
+                            {
+                                totalPages.map(el => (
+                                    <li className={`page-item ${page === el ? 'active' : ''}`} key={el}>
+                                        <Link href={`/search?keyword=${keyword}&page=${el}`}>
+                                            <a className={`page-link`}>{el + 1}</a>
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </nav>
                 </Page>
             </div>
         </>
@@ -64,7 +78,11 @@ export async function getServerSideProps({query}) {
     const page = query.page;
     await db.connect();
     const total = await ChapterModel.find({arabicTitle: new RegExp(keyword, 'i')}).count();
-    const totalPages = Math.ceil(total / 5);
+    const totalPagesCount = Math.ceil(total / 5);
+    let totalPages = [];
+    for (let i = 0; i <= totalPagesCount - 1; i++) {
+        totalPages.push(i);
+    }
     const resultObjects = await ChapterModel.aggregate([
         {
             $match: {arabicTitle: new RegExp(keyword, 'i')}
@@ -102,7 +120,8 @@ export async function getServerSideProps({query}) {
             results: JSON.parse(results),
             totalPages,
             keyword,
-            total
+            total,
+            page
         },
     };
 }

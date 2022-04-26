@@ -1,0 +1,1 @@
+{"_id":{"$oid":"62114990a7c36be3740ab2ff"},"firstName":"Imran","lastName":"Hossain","email":"sheikhshourov420@gmail.com","password":"$2a$10$riN7hQ3Mrxoxpf/Qe8nV7.4kcn8GidodxLX0tAtE.Ms5LWhu/SZR6","isAdmin":true,"createdAt":{"$date":"2022-02-19T19:48:32.102Z"},"updatedAt":{"$date":"2022-02-19T19:48:32.102Z"},"__v":0}
