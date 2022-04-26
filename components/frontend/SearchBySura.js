@@ -5,7 +5,6 @@ import axios from "axios";
 import {toArabic} from 'arabic-digits';
 import $ from 'jquery';
 export default function SearchBySura() {
-    const [sura, setSura] = useState(1);
     const [suras, setSuras] = useState();
     const [chapters, setChapters] = useState();
     async function getSuras() {
