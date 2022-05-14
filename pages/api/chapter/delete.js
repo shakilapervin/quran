@@ -9,7 +9,6 @@ handler.post(async (req, res) => {
     if (session) {
         await db.connect();
         const chapter = await Chapter.findByIdAndDelete(req.body.id);
-        await db.disconnect();
         if (chapter) {
             res.send({
                 success: 'Deleted',

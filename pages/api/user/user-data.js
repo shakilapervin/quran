@@ -9,7 +9,6 @@ handler.post(async (req, res) => {
     if (session) {
         await db.connect();
         const user = await User.findOne({ email: req.body.email });
-        await db.disconnect();
         if (user) {
             res.send({
                 _id: user._id,

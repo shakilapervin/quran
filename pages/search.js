@@ -114,7 +114,6 @@ export async function getServerSideProps({query}) {
         }
     ]).skip(5 * page).limit(50);
     const results = JSON.stringify(resultObjects);
-    await db.disconnect();
     return {
         props: {
             results: JSON.parse(results),

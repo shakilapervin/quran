@@ -3,8 +3,7 @@
     min-height: 100vh;
     border: 15px solid transparent;
     padding: 40px 5% 0 5%;
-    border-image-source: url("/ho2.png");
+    border-image-source: url("../../../public/ho2.png");
     border-image-slice: 10;
     border-image-repeat: round;
-    font-family: 'Noto Naskh Arabic', serif;
 }

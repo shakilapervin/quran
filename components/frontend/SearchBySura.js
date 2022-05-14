@@ -43,7 +43,7 @@ export default function SearchBySura() {
         <>
             <div className={styles.searchBoxTitle}> متن قرآن</div>
             <div className={styles.searchFieldWrapper}>
-                <form action={`/search`} method={`get`}>
+                <form action={`/sura`} method={`get`}>
                     <div className="row align-items-center">
                         <div className="col-md-12">
                             <div className="row align-items-center mb-3">

@@ -1,50 +1,70 @@
-import Head from 'next/head';
-import CustomImage from '../components/CustomImage';
-import SearchByText from '../components/frontend/SearchByText';
-import SearchBySura from '../components/frontend/SearchBySura';
-import Link from 'next/link';
-import styles from '../styles/Home.module.css'
+import Head from "next/head";
+import ChapterModel from "../models/Chapter";
+import db from "../utils/db";
+import Header from "../components/frontend/layouts/Header";
+import Page from '../components/frontend/layouts/Page';
+import {toArabic} from 'arabic-digits';
 
-export default function Sura() {
+export default function Sura({chapters}) {
     return (
         <>
             <Head>
-                <title>پارس قرآن : جستجوي قرآن</title>
-                <meta
-                    name="description"
-                    content="جستجوگر قرآن به سه زبان فارسي ، عربي و انگليسي. مقالات و نرم افزارهاي قرآني. تلاوت قرآن. ترجمه هاي مختلف قرآن"
-                />
-                <meta
-                    name="keyword"
-                    content="قران , فارسي , قرآن کريم , قرآن مجيد , فارسي , انگليسي, قرآن ,  عربي , عربي , ترجمه , جستجو , quran, iran, koran, islam, god, قران کریم"
-                />
+                <title>Almunji</title>
             </Head>
-            <div className={styles.topArea} dir="rtl">
-                <div className="container">
-                    <div className="row align-items-center">
-                        <div className="col-md-3">
-                            <div className={styles.logo}>
-                                <CustomImage src="/logo.png" href="/"/>
-                            </div>
-                        </div>
-                        <div className="col-md-6">
-                            <SearchByText/>
-                        </div>
-                        <div className="col-md-3 text-center">
-                            <Link href="#">
-                                <a>বাংলা</a>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-                <div className="container mt-5">
-                    <div className="row">
-                        <div className="col-md-4">
-                            <SearchBySura/>
-                        </div>
-                    </div>
-                </div>
+            <Header/>
+            <div className="container">
+                <Page>
+                    {
+                        chapters && (
+                            chapters.map((el) => (
+                                <div key={el._id} className={`row mb-5`}>
+                                    <div className="col-md-3">
+                                        <p className={`font-size-26`}>
+                                            {el.arabicTitle} <span className={`serial`}>﴿{toArabic(el.serial)}﴾</span>
+                                        </p>
+                                    </div>
+                                    <div className="col-md-3">
+                                        <p>
+                                            {el.banglaTitle} <span className={`serial`}>({el.serial})</span>
+                                        </p>
+                                    </div>
+                                    {
+                                        el.banglaTafsil && (
+                                            <div className="col-md-3">
+                                                <p>
+                                                    {el.banglaTafsil} <span className={`serial`}>({el.serial})</span>
+                                                </p>
+                                            </div>
+                                        )
+                                    }
+                                    {
+                                        el.banglaTafsil2 && (
+                                            <div className="col-md-3">
+                                                <p>
+                                                    {el.banglaTafsil2} <span className={`serial`}>({el.serial})</span>
+                                                </p>
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                            ))
+                        )
+                    }
+                </Page>
             </div>
         </>
-    );
+    )
+}
+
+export async function getServerSideProps({query}) {
+    const sura = query.sura;
+    const chapter = query.chapter;
+    await db.connect();
+    const resultObjects = await ChapterModel.find({sura: sura, serial: {$gte : chapter}}).limit(10);
+    const chapters = JSON.stringify(resultObjects);
+    return {
+        props: {
+            chapters: JSON.parse(chapters),
+        },
+    };
 }

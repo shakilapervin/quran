@@ -15,7 +15,6 @@ handler.post(async (req,res) => {
                 serial: req.body.serial,
             });
             await sura.save();
-            await db.disconnect();
             if (sura) {
                 res.status(200).send({
                     success: 'Saved',

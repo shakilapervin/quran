@@ -7,7 +7,6 @@ handler.post(async (req, res) => {
     const sura = req.body.sura;
     await db.connect();
     const chapters = await Chapter.find({sura});
-    await db.disconnect();
     if (chapters) {
         res.status(200).send(chapters);
     } else {

@@ -30,7 +30,6 @@ handler.post(async (req, res) => {
                 error: 'Day id is required',
             });
         }
-        await db.connect();
         const sura = await Sura.findByIdAndUpdate(id, {
             banglaName: banglaName,
             arabicName: arabicName,

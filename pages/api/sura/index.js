@@ -6,7 +6,6 @@ const handler = nc();
 handler.get(async (req, res) => {
     await db.connect();
     const suras = await Sura.find({});
-    await db.disconnect();
     if (suras) {
         res.status(200).send(suras);
     } else {

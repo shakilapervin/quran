@@ -9,7 +9,6 @@ handler.post(async (req, res) => {
     if (session) {
         await db.connect();
         const sura = await Sura.findByIdAndDelete(req.body.id);
-        await db.disconnect();
         if (sura) {
             res.send({
                 success: 'Deleted',
