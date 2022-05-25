@@ -32,6 +32,7 @@ handler.post(async (req, res) => {
                 error: 'Id is required',
             });
         }
+        await db.connect();
         const chapter = await Chapter.findByIdAndUpdate(id, {
             banglaTafsil: banglaTafsil,
             banglaTafsil2: banglaTafsil2,
@@ -39,7 +40,6 @@ handler.post(async (req, res) => {
             arabicTitle: arabicTitle,
             serial: serial,
         });
-        await db.disconnect();
         if (chapter) {
             res.status(200).send({
                 success: 'Updated',
