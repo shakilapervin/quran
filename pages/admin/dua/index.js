@@ -17,7 +17,7 @@ export default function DuaList({user, duas}) {
     };
     const deleteHandler = async (id) => {
         try {
-            const response = await axios.post('/api/sura/delete', {
+            const response = await axios.post('/api/dua/delete', {
                 id: id,
             });
             if (response.data.success) {
