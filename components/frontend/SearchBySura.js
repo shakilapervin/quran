@@ -4,37 +4,42 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import {toArabic} from 'arabic-digits';
 import $ from 'jquery';
+
 export default function SearchBySura() {
     const [suras, setSuras] = useState();
     const [chapters, setChapters] = useState();
+
     async function getSuras() {
         try {
             const res = await axios.get(
-                '/api/sura'
+                `${process.env.API_URL}/sura?allData=true`
             );
-            if (res.status === 200) {
-                setSuras(res.data);
-                getChapters('62124217f548f5257ff1fd41');
+            if (res.data.status === true) {
+                setSuras(res.data.suras);
+                getChapters(1);
             }
         } catch (err) {
             console.log(err);
         }
     }
+
     useEffect(() => {
         getSuras();
     }, [setSuras]);
+
     async function getChapters(sura) {
         try {
-            const res = await axios.post(
-                '/api/chapter', {sura}
+            const res = await axios.get(
+                `${process.env.API_URL}/${sura}/chapter?allData=true`
             );
-            if (res.status === 200) {
-                setChapters(res.data);
+            if (res.data.status === true) {
+                setChapters(res.data.chapters);
             }
         } catch (err) {
             console.log(err);
         }
     }
+
     const handleSuraChange = () => {
         const sura = $('.sura').val();
         getChapters(sura);
@@ -51,12 +56,13 @@ export default function SearchBySura() {
                                     سوره:
                                 </label>
                                 <div className="col-md-10">
-                                    <select name="sura" className={`form-control ${styles.dropdown} sura`} onChange={handleSuraChange}>
+                                    <select name="sura" className={`form-control ${styles.dropdown} sura`}
+                                            onChange={handleSuraChange}>
                                         {
                                             suras && (
-                                                suras.map(el=> (
-                                                    <option value={el._id} key={el._id}>
-                                                        {toArabic(el.serial)}. {el.arabicName}
+                                                suras.map((el) => (
+                                                    <option value={el.id} key={el.id}>
+                                                        {toArabic(el.serial_no)}. {el.arabic_name}
                                                     </option>
                                                 ))
                                             )
@@ -72,8 +78,8 @@ export default function SearchBySura() {
                                     <select name="chapter" className={`form-control ${styles.dropdown}`}>
                                         {
                                             chapters && (
-                                                chapters.map(el=> (
-                                                    <option value={el.serial} key={el._id}>
+                                                chapters.map((el) => (
+                                                    <option value={el.serial} key={el.id}>
                                                         {toArabic(el.serial)}
                                                     </option>
                                                 ))

@@ -1,13 +1,62 @@
 import Head from "next/head";
-import ChapterModel from "../models/Chapter";
-import db from "../utils/db";
 import Header from "../components/frontend/layouts/Header";
 import Page from '../components/frontend/layouts/Page';
 import styles from '../styles/Search.module.css';
 import {toArabic} from 'arabic-digits';
 import Link from "next/link";
+import axios from "axios";
+import {useEffect, useState} from "react";
+import Skeleton, {SkeletonTheme} from "react-loading-skeleton";
 
-export default function Search({results, keyword, total, totalPages, page}) {
+export default function Search({keyword}) {
+    const [results, setResults] = useState();
+    const [loading, setLoading] = useState(true);
+    const [links, setLinks] = useState([]);
+
+    async function getResults() {
+        try {
+            const res = await axios.post(
+                `${process.env.API_URL}/search/chapters`,
+                {keyword}
+            );
+            if (res.data.status === true) {
+                if (res.data.chapters.data) {
+                    setResults(res.data.chapters.data);
+                    setLoading(false);
+                }
+                if (res.data.suras.links){
+                    setLinks(res.data.suras.links);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    useEffect(() => {
+        getResults();
+    }, [setResults]);
+
+    const paginate = async (url) => {
+        setLoading(true);
+        try {
+            const res = await axios.post(
+                url,
+                {
+                    keyword
+                }
+            );
+            if (res.data.chapters.data) {
+                setResults(res.data.chapters.data);
+                setLoading(false);
+            }
+            if (res.data.suras.links){
+                setLinks(res.data.suras.links);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     return (
         <>
             <Head>
@@ -32,37 +81,50 @@ export default function Search({results, keyword, total, totalPages, page}) {
                             </div>
                         </div>
                     </form>
-                    <div className={styles.totalWrapper}>
-                        نتیجه {toArabic(total)}
-                    </div>
+                    {
+                        results && !loading &&(
+                            <div className={styles.totalWrapper}>
+                                نتیجه {toArabic(results.length)}
+                            </div>
+                        ) || (
+                            <SkeletonTheme baseColor="#dddddd" highlightColor="#F1F5F9">
+                                <Skeleton width={`100%`} height={40} count={10} style={{marginBottom: 30}}/>
+                            </SkeletonTheme>
+                        )
+                    }
                     <div className={styles.results}>
                         {
-                            results && (
-                                results.map((el, index) => (
-                                    <div key={el._id} className={styles.item}>
+                            results && !loading &&(
+                                results.map((el) => (
+                                    <div key={el.id} className={styles.item}>
                                         <Link href={`#`}>
                                             <a>
-                                                {toArabic(index + 1)}. سوره {toArabic(el.sura[0].serial)},
+                                                {toArabic(el.serial_no)}. سوره {toArabic(el.serial)},
                                                 آیه {toArabic(el.serial)}
                                             </a>
                                         </Link>
                                         <p className={styles.chapter}>
-                                            {el.arabicTitle}
+                                            {el.arabic}
                                         </p>
                                         <p>{keyword}</p>
                                     </div>
                                 ))
+                            ) || (
+                                <SkeletonTheme baseColor="#dddddd" highlightColor="#F1F5F9">
+                                    <Skeleton width={`100%`} height={40} count={10} style={{marginBottom: 30}}/>
+                                </SkeletonTheme>
                             )
                         }
                     </div>
-                    <nav className={`float-end`}>
+                    <nav>
                         <ul className="pagination mt-3">
                             {
-                                totalPages.map(el => (
-                                    <li className={`page-item ${page === el ? 'active' : ''}`} key={el}>
-                                        <Link href={`/search?keyword=${keyword}&page=${el}`}>
-                                            <a className={`page-link`}>{el + 1}</a>
-                                        </Link>
+                                links.map(el => (
+                                    <li className={`page-item ${el.active === true ? 'active' : ''}`}
+                                        key={el.label}>
+                                        <a className={`page-link`}
+                                           onClick={() => paginate(el.url)}
+                                           dangerouslySetInnerHTML={{__html: el.label}}/>
                                     </li>
                                 ))
                             }
@@ -75,52 +137,9 @@ export default function Search({results, keyword, total, totalPages, page}) {
 }
 export async function getServerSideProps({query}) {
     const keyword = query.keyword;
-    const page = query.page;
-    await db.connect();
-    const total = await ChapterModel.find({arabicTitle: new RegExp(keyword, 'i')}).count();
-    const totalPagesCount = Math.ceil(total / 5);
-    let totalPages = [];
-    for (let i = 0; i <= totalPagesCount - 1; i++) {
-        totalPages.push(i);
-    }
-    const resultObjects = await ChapterModel.aggregate([
-        {
-            $match: {arabicTitle: new RegExp(keyword, 'i')}
-        },
-        {$addFields: {suraId: {$toObjectId: "$sura"}}},
-        {
-            $lookup: {
-                from: 'suras',
-                localField: 'suraId',
-                foreignField: '_id',
-                as: 'sura',
-                pipeline: [
-                    {
-                        $project: {
-                            _id: 1,
-                            serial: 1,
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            $project: {
-                _id: 1,
-                arabicTitle: 1,
-                serial: 1,
-                sura: 1
-            }
-        }
-    ]).skip(5 * page).limit(50);
-    const results = JSON.stringify(resultObjects);
     return {
         props: {
-            results: JSON.parse(results),
-            totalPages,
-            keyword,
-            total,
-            page
+            keyword
         },
     };
 }

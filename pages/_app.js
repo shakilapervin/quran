@@ -1,20 +1,10 @@
 import '../styles/globals.css';
 import '../styles/bootstrap.min.css';
-import { SessionProvider } from 'next-auth/react';
-
-function MyApp({ Component, pageProps }) {
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-loading-skeleton/dist/skeleton.css';
+function MyApp({Component, pageProps}) {
     return (
-        <SessionProvider
-            options={{
-                staleTime: 0,
-                refetchInterval: 0,
-            }}
-            session={pageProps.session}
-        >
-            <Component {...pageProps} />
-        </SessionProvider>
+        <Component {...pageProps} />
     );
 }
-
-
 export default MyApp;

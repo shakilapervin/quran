@@ -1,38 +1,73 @@
-import { useState } from 'react';
-import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Layout from '../../../components/admin/layouts/Layout';
 import styles from '../../../styles/AddNewSura.module.css';
 import axios from 'axios';
 import $ from 'jquery';
-import db from '../../../utils/db';
-import User from '../../../models/User';
-export default function AddNewSura({ user }) {
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../utils/session";
+import {ToastContainer, toast} from 'react-toastify';
+import Loader from "../../../components/Loader";
+import {useState} from "react";
+
+export default function AddNewSura({user}) {
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
     const handleForm = async (e) => {
         e.preventDefault();
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
         const arabicName = e.target.arabicName.value;
         const banglaName = e.target.banglaName.value;
         const serial = e.target.serial.value;
         try {
-            const response = await axios.post('/api/sura/save', {
+            const response = await axios.post(`${process.env.API_URL}/sura/save`, {
                 banglaName: banglaName,
                 arabicName: arabicName,
-                serial: serial,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
-                $('#arabicName').val('');
-                $('#banglaName').val('');
-                $('#serial').val('');
-                setError(null);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
+                serial_no: serial,
+            }, headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                $('form').trigger('reset');
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
@@ -40,6 +75,12 @@ export default function AddNewSura({ user }) {
             <Head>
                 <title>Add New Sura</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
@@ -47,20 +88,6 @@ export default function AddNewSura({ user }) {
                     </div>
                     <div className="widgetArea">
                         <div className="content">
-                            {success !== null ? (
-                                <div className="alert alert-success">
-                                    {success}
-                                </div>
-                            ) : (
-                                ''
-                            )}
-                            {error !== null ? (
-                                <div className="alert alert-danger">
-                                    {error}
-                                </div>
-                            ) : (
-                                ''
-                            )}
                             <div className={styles.formWrapper}>
                                 <form onSubmit={handleForm}>
                                     <div className="form-group mb-2">
@@ -111,28 +138,21 @@ export default function AddNewSura({ user }) {
         </>
     );
 }
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session) {
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req}) {
+        const session = req.session;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
+            props: {
+                user: session.user
             },
         };
-    }
-    await db.connect();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    await db.disconnect();
-    if (!user) {
-        return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
-            },
-        };
-    }
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-        },
-    };
-}
+    },
+    session
+);

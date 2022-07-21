@@ -1,88 +1,142 @@
-import React, { useState } from 'react';
-import { getSession } from 'next-auth/react';
+import {useEffect, useState} from 'react';
 import Head from 'next/head';
 import Layout from '../../../../../components/admin/layouts/Layout';
 import styles from '../../../../../styles/AddNewChapter.module.css';
 import axios from 'axios';
 import $ from 'jquery';
-import db from '../../../../../utils/db';
-import User from '../../../../../models/User';
-import Sura from '../../../../../models/Sura';
 import dynamic from "next/dynamic";
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../../../utils/session";
+import Loader from "../../../../../components/Loader";
+import {toast, ToastContainer} from "react-toastify";
+
 const JoditEditor = dynamic(
     () => {
         return import("jodit-react");
     },
-    { ssr: false }
+    {ssr: false}
 );
-export default function AddNewChapter({ user, sura, id }) {
+export default function AddNewChapter({user, id}) {
+    const [sura, setSura] = useState();
+    const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
+    useEffect(() => {
+        axios.get(
+            `${process.env.API_URL}/sura/${id}`,
+            headers
+        ).then(res => {
+            if (res.data.status === true) {
+                setSura(res.data.sura);
+                setLoading(false);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }, []);
     const config = {
         readonly: false,
         height: 400,
     };
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
     const handleForm = async (e) => {
         e.preventDefault();
-        const arabicTitle = e.target.arabicTitle.value;
-        const banglaTitle = e.target.banglaTitle.value;
-        const banglaTafsil = $('.tafsilShort .jodit-wysiwyg').html();
-        const banglaTafsil2 = $('.tafsilLong .jodit-wysiwyg').html();
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
+        const arabic = e.target.arabicTitle.value;
+        const bangla = e.target.banglaTitle.value;
+        const shortTafsil = $('.tafsilShort .jodit-wysiwyg').html();
+        const longTafsil = $('.tafsilLong .jodit-wysiwyg').html();
         const serial = e.target.serial.value;
         try {
-            const response = await axios.post('/api/chapter/save', {
-                arabicTitle: arabicTitle,
-                banglaTitle: banglaTitle,
-                banglaTafsil: banglaTafsil,
-                banglaTafsil2: banglaTafsil2,
-                serial: serial,
-                id: id,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
-                $('#form').trigger('reset');
-                setError(null);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
+            const response = await axios.post(`${process.env.API_URL}/chapter/save`, {
+                arabic,
+                bangla,
+                shortTafsil,
+                longTafsil,
+                serial,
+                sura: id
+            }, headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                $('form').trigger('reset');
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
         <>
             <Head>
-                <title>Add New Chapter In {sura.banglaName}</title>
+                <title>Add New Chapter In
+                    {
+                        sura && loading === false && (
+                            ' ' + sura.bangla_name
+                        )
+                    }</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
                         <h1 className="welcome">
-                            Add New Chapter In {sura.banglaName}
+                            Add New Chapter In
+                            {
+                                sura && loading === false && (
+                                    ' ' + sura.bangla_name
+                                )
+                            }
                         </h1>
                     </div>
                     <div className="widgetArea">
                         <div className="content">
-                            {success !== null ? (
-                                <div className="alert alert-success">
-                                    {success}
-                                </div>
-                            ) : (
-                                ''
-                            )}
-                            {error !== null ? (
-                                <div className="alert alert-danger">
-                                    {error}
-                                </div>
-                            ) : (
-                                ''
-                            )}
                             <div className={styles.formWrapper}>
                                 <form onSubmit={handleForm} id='form'>
                                     <div className="form-group mb-2">
                                         <label>Arabic</label>
-                                        <textarea name="arabicTitle" className="form-control" rows="5" dir="rtl"></textarea>
+                                        <textarea name="arabicTitle" className="form-control" rows="5"
+                                                  dir="rtl"></textarea>
                                     </div>
                                     <div className="form-group mb-2">
                                         <label>Bangla</label>
@@ -127,33 +181,23 @@ export default function AddNewChapter({ user, sura, id }) {
         </>
     );
 }
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    const { params } = context;
-    const { id } = params;
-    if (!session) {
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req, params}) {
+        const session = req.session;
+        const id = params.id;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
+            props: {
+                user: session.user,
+                id
             },
         };
-    }
-    await db.connect();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    const sura = await Sura.findOne({ _id: id }).lean();
-    await db.disconnect();
-    if (!user) {
-        return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
-            },
-        };
-    }
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-            sura: db.convertDocToObj(sura),
-            id
-        },
-    };
-}
+    },
+    session
+);

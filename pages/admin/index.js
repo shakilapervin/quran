@@ -1,76 +1,133 @@
-import React from 'react';
-import { getSession } from 'next-auth/react';
-import Head from 'next/head';
-import Layout from '../../components/admin/layouts/Layout';
-import styles from '../../styles/Dashboard.module.css';
-import db from '../../utils/db';
-import User from '../../models/User';
-import Sura from '../../models/Sura';
-import Chapter from '../../models/Chapter';
+import Head from "next/head";
+import styles from '../../styles/Login.module.css';
+import $ from 'jquery';
+import axios from "axios";
+import {ToastContainer, toast} from 'react-toastify';
+import {useRouter} from "next/router";
 
-export default function Dashboard({ user, suraNumber, chapterNumber }) {
+export default function Login() {
+    const router = useRouter();
+    const handleForm = async e => {
+        e.preventDefault();
+        toast.loading('Loading', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
+        const email = $('.email').val();
+        const password = $('.password').val();
+        if (email === ''){
+            toast.dismiss();
+            toast.error('Email is required', {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            return;
+        }
+        if (password === ''){
+            toast.dismiss();
+            toast.error('Password is required', {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            return;
+        }
+        axios
+            .post(`${process.env.API_URL}/login`, {
+                email: email,
+                password: password,
+            })
+            .then((response) => {
+                if (response.data.status === true) {
+                    axios
+                        .post('/api/auth/login', {
+                            id: response.data.user.id,
+                            name: response.data.user.name,
+                            email: response.data.user.email,
+                            token: response.data.token,
+                        })
+                        .then(() => {
+                            toast.dismiss();
+                            toast.success('Successfully Logged In', {
+                                position: "bottom-left",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                theme: 'dark',
+                            });
+                            router.replace('/admin/dashboard');
+                        })
+                        .catch((err) => {
+                            toast.dismiss();
+                            toast.error(err.response.data, {
+                                position: "bottom-left",
+                                autoClose: 3000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                                theme: 'dark',
+                            });
+                        });
+                }else {
+                    toast.dismiss();
+                    toast.error(response.data.errors, {
+                        position: "bottom-left",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        theme: 'dark',
+                    });
+                }
+            })
+            .catch((err) => {
+                toast.dismiss();
+                toast.error(err.response.data, {
+                    position: "bottom-left",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+            });
+    }
     return (
         <>
             <Head>
-                <title>Admin Dashboard</title>
+                <title>Login</title>
             </Head>
-            <Layout user={user}>
-                <div className="topBar">
-                    <div className="content">
-                        <h1 className="welcome">Welcome Back</h1>
-                    </div>
-                </div>
-                <div className="widgetArea">
-                    <div className="content">
-                        <div className="row g-5">
-                            <div className="col-md-6">
-                                <div className={styles.countWidget}>
-                                    <p className={styles.blue}>{suraNumber}</p>
-                                    <p className={styles.blue}>Total Sura</p>
-                                </div>
-                            </div>
-                            <div className="col-md-6">
-                                <div className={styles.countWidget}>
-                                    <p className={styles.red}>
-                                        {chapterNumber}
-                                    </p>
-                                    <p className={styles.red}>Total Ayat</p>
-                                </div>
-                            </div>
+            <ToastContainer/>
+            <div className={styles.wrapper}>
+                <div className={styles.formWrapper}>
+                    <form onSubmit={handleForm}>
+                        <h1 className={`text-center`}>
+                            Login
+                        </h1>
+                        <div className="mb-3">
+                            <input type="email" className={`form-control email`} placeholder={`Email Address`}/>
                         </div>
-                    </div>
+                        <div className="mb-3">
+                            <input type="password" className={`form-control password`} placeholder={`Password`}/>
+                        </div>
+                        <button className={`btn btn-success d-block w-100`} type={`submit`}>Login</button>
+                    </form>
                 </div>
-            </Layout>
+            </div>
         </>
-    );
-}
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session) {
-        return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin`,
-            },
-        };
-    }
-
-    await db.connect();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    const suraNumber = await Sura.find({}).lean().count();
-    const chapterNumber = await Chapter.find({}).lean().count();
-    await db.disconnect();
-    if (!user) {
-        return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin`,
-            },
-        };
-    }
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-            suraNumber,
-            chapterNumber,
-        },
-    };
+    )
 }

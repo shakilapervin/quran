@@ -1,58 +1,106 @@
 import Layout from '../../../../../components/admin/layouts/Layout';
-import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import axios from 'axios';
-import db from '../../../../../utils/db';
-import Chapter from '../../../../../models/Chapter';
-import User from '../../../../../models/User';
 import dynamic from "next/dynamic";
-import React, { useState  } from "react";
+import React, {useEffect, useState} from "react";
 import $ from 'jquery';
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../../../utils/session";
+import Loader from "../../../../../components/Loader";
+import {toast, ToastContainer} from "react-toastify";
+import Skeleton, {SkeletonTheme} from "react-loading-skeleton";
+
 const JoditEditor = dynamic(
     () => {
         return import("jodit-react");
     },
-    { ssr: false }
+    {ssr: false}
 );
 
-export default function Edit({ user, id, chapter }) {
+export default function Edit({user, id, sura}) {
+    const [chapter, setChapter] = useState();
+    const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
+    useEffect(() => {
+        axios.get(
+            `${process.env.API_URL}/chapter/${id}`,
+            headers
+        ).then(res => {
+            if (res.data.status === true) {
+                setChapter(res.data.chapter);
+                setLoading(false);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }, []);
     const config = {
         readonly: false,
         height: 400,
     };
 
-
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
     const handleForm = async (e) => {
         e.preventDefault();
-        const arabicTitle = e.target.arabicTitle.value;
-        const banglaTitle = e.target.banglaTitle.value;
-        const banglaTafsil = $('.tafsilShort .jodit-wysiwyg').html();
-        const banglaTafsil2 = $('.tafsilLong .jodit-wysiwyg').html();
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
+        const arabic = e.target.arabicTitle.value;
+        const bangla = e.target.banglaTitle.value;
+        const shortTafsil = $('.tafsilShort .jodit-wysiwyg').html();
+        const longTafsil = $('.tafsilLong .jodit-wysiwyg').html();
         const serial = e.target.serial.value;
         try {
-            const response = await axios.post('/api/chapter/update', {
-                arabicTitle: arabicTitle,
-                banglaTitle: banglaTitle,
-                banglaTafsil: banglaTafsil,
-                banglaTafsil2: banglaTafsil2,
-                serial: serial,
-                id: id,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
-                setTimeout(function () {
-                    setError(null);
-                    setSuccess(null);
-                }, 2000);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
-                setSuccess(null);
+            const response = await axios.post(`${process.env.API_URL}/chapter/update`, {
+                arabic,
+                bangla,
+                shortTafsil,
+                longTafsil,
+                serial,
+                sura,
+                id
+            }, headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
@@ -60,6 +108,12 @@ export default function Edit({ user, id, chapter }) {
             <Head>
                 <title>Edit Chapter</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
@@ -68,16 +122,6 @@ export default function Edit({ user, id, chapter }) {
                 </div>
                 <div className="widgetArea">
                     <div className="content">
-                        {success !== null ? (
-                            <div className="alert alert-success">{success}</div>
-                        ) : (
-                            ''
-                        )}
-                        {error !== null ? (
-                            <div className="alert alert-danger">{error}</div>
-                        ) : (
-                            ''
-                        )}
                         <div className="formWrapper">
                             <form
                                 onSubmit={handleForm}
@@ -85,38 +129,79 @@ export default function Edit({ user, id, chapter }) {
                             >
                                 <div className="form-group mb-2">
                                     <label>Arabic</label>
-                                    <textarea name="arabicTitle" className="form-control" rows="5" dir="rtl"
-                                              defaultValue={chapter.arabicTitle}></textarea>
+                                    {
+                                        sura && loading === false && (
+                                            <textarea name="arabicTitle" className="form-control" rows="5" dir="rtl"
+                                                      defaultValue={chapter.arabic}></textarea>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={70}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Bangla</label>
-                                    <textarea name="banglaTitle" className="form-control" rows="5"
-                                              defaultValue={chapter.banglaTitle}></textarea>
+                                    {
+                                        sura && loading === false && (
+                                            <textarea name="banglaTitle" className="form-control" rows="5"
+                                                      defaultValue={chapter.bangla}></textarea>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={70}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2 tafsilShort">
                                     <label>Short Tafsil</label>
-                                    <JoditEditor
-                                        config={config}
-                                        value={chapter.banglaTafsil}
-                                    />
+                                    {
+                                        sura && loading === false && (
+                                            <JoditEditor
+                                                config={config}
+                                                value={chapter.shortTafsil}
+                                            />
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={100}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2 tafsilLong">
                                     <label>Long Tafsil</label>
-                                    <JoditEditor
-                                        config={config}
-                                        value={chapter.banglaTafsil2}
-                                    />
+
+                                    {
+                                        sura && loading === false && (
+                                            <JoditEditor
+                                                config={config}
+                                                value={chapter.longTafsil2}
+                                            />
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={100}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Chapter Serial Number</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="serial"
-                                        id="serial"
-                                        defaultValue={chapter.serial}
-                                    />
+                                    {
+                                        sura && loading === false && (
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                required
+                                                name="serial"
+                                                id="serial"
+                                                defaultValue={chapter.serial}
+                                            />
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <button
@@ -135,28 +220,26 @@ export default function Edit({ user, id, chapter }) {
     );
 }
 
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    const { params } = context;
-    const { id, chapter } = params;
-    if (!session) {
+
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req, params}) {
+        const session = req.session;
+        const sura = params.id;
+        const id = params.chapter;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/${id}/chapter/${chapter}`,
+            props: {
+                user: session.user,
+                id,
+                sura
             },
         };
-    }
-
-    await db.connect();
-    const chapterData = await Chapter.findOne({ _id: chapter }).lean();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    await db.disconnect();
-
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-            chapter: db.convertDocToObj(chapterData),
-            id: chapter,
-        },
-    };
-}
+    },
+    session
+);

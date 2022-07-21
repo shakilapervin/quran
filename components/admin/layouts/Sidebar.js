@@ -2,7 +2,6 @@ import styles from './Sidebar.module.css';
 import CustomImage from './../../CustomImage';
 import Link from 'next/link';
 import {useRouter} from 'next/router';
-import {signOut} from 'next-auth/react';
 
 export default function Sidebar({user}) {
     const router = useRouter();
@@ -12,14 +11,14 @@ export default function Sidebar({user}) {
                 <CustomImage href="#" src="/avatar.jpg"/>
             </div>
             <p className="text-center text-white mt-2">
-                {user.firstName} {user.lastName}
+                {user.name}
             </p>
             <ul className={styles.menu}>
                 <li>
                     <Link href="/admin">
                         <a
                             className={
-                                router.pathname == '/admin' ? styles.active : ''
+                                router.pathname == '/admin/dashboard' ? styles.active : ''
                             }
                         >
                             <span className="fi fi-rr-dashboard"></span>
@@ -61,12 +60,7 @@ export default function Sidebar({user}) {
                 </li>
                 <li>
                     <Link href="/api/auth/signout">
-                        <a
-                            onClick={(e) => {
-                                e.preventDefault();
-                                signOut();
-                            }}
-                        >
+                        <a>
                             <span className="fi fi-rr-sign-out-alt"></span>
                             Logout
                         </a>

@@ -1,40 +1,87 @@
-import React, { useState } from 'react';
 import Layout from '../../../../components/admin/layouts/Layout';
-import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import axios from 'axios';
-import db from '../../../../utils/db';
-import Sura from '../../../../models/Sura';
-import User from '../../../../models/User';
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../../utils/session";
+import Skeleton, {SkeletonTheme} from 'react-loading-skeleton';
+import {useEffect, useState} from "react";
+import {ToastContainer, toast} from 'react-toastify';
+import Loader from "../../../../components/Loader";
 
-export default function Edit({ user, sura, id }) {
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
+export default function Edit({user, id}) {
+    const [sura, setSura] = useState();
+    const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
+    useEffect(() => {
+        axios.get(
+            `${process.env.API_URL}/sura/${id}`,
+            headers
+        ).then(res => {
+            if (res.data.status === true) {
+                setSura(res.data.sura);
+                setLoading(false);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }, []);
     const handleForm = async (e) => {
         e.preventDefault();
-        const banglaName = e.target.banglaName.value;
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
         const arabicName = e.target.arabicName.value;
+        const banglaName = e.target.banglaName.value;
         const serial = e.target.serial.value;
         try {
-            const response = await axios.post('/api/sura/update', {
-                banglaName,
-                arabicName,
-                serial,
-                id,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
-                setTimeout(function () {
-                    setError(null);
-                    setSuccess(null);
-                }, 2000);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
-                setSuccess(null);
+            const response = await axios.post(`${process.env.API_URL}/sura/update`, {
+                banglaName: banglaName,
+                arabicName: arabicName,
+                serial_no: serial,
+                id
+            }, headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
@@ -42,6 +89,12 @@ export default function Edit({ user, sura, id }) {
             <Head>
                 <title>Edit Sura</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
@@ -50,16 +103,6 @@ export default function Edit({ user, sura, id }) {
                 </div>
                 <div className="widgetArea">
                     <div className="content">
-                        {success !== null ? (
-                            <div className="alert alert-success">{success}</div>
-                        ) : (
-                            ''
-                        )}
-                        {error !== null ? (
-                            <div className="alert alert-danger">{error}</div>
-                        ) : (
-                            ''
-                        )}
                         <div className="formWrapper">
                             <form
                                 onSubmit={handleForm}
@@ -67,37 +110,42 @@ export default function Edit({ user, sura, id }) {
                             >
                                 <div className="form-group mb-2">
                                     <label>Bangla Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="banglaName"
-                                        id="banglaName"
-                                        defaultValue={sura.banglaName}
-                                    />
+                                    {
+                                        sura && loading === false && (
+                                            <input type="text" className={`form-control`} name="banglaName" required
+                                                   defaultValue={sura.bangla_name}/>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Arabic Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="arabicName"
-                                        id="arabicName"
-                                        dir="rtl"
-                                        defaultValue={sura.arabicName}
-                                    />
+                                    {
+                                        sura && loading === false && (
+                                            <input type="text" className={`form-control`} name="arabicName" required
+                                                   defaultValue={sura.arabic_name} dir='rtl'/>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Sura Serial Number</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="serial"
-                                        id="serial"
-                                        defaultValue={sura.serial}
-                                    />
+                                    {
+                                        sura && loading === false && (
+                                            <input type="text" className={`form-control`} name="serial" required
+                                                   defaultValue={sura.serial_no} dir='rtl'/>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <button
@@ -116,28 +164,23 @@ export default function Edit({ user, sura, id }) {
     );
 }
 
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    const { params } = context;
-    const { id } = params;
-    if (!session) {
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req, params}) {
+        const session = req.session;
+        const id = params.id;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/day/${id}`,
+            props: {
+                user: session.user,
+                id
             },
         };
-    }
-
-    await db.connect();
-    const sura = await Sura.findOne({ _id: id }).lean();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    await db.disconnect();
-
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-            sura: db.convertDocToObj(sura),
-            id: id,
-        },
-    };
-}
+    },
+    session
+);
