@@ -4,6 +4,7 @@ import SearchByText from '../components/frontend/SearchByText';
 import SearchBySura from '../components/frontend/SearchBySura';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css'
+import SearchByDua from "../components/frontend/SearchByDua";
 
 export default function Home() {
     return (
@@ -41,6 +42,9 @@ export default function Home() {
                     <div className="row">
                         <div className="col-md-4">
                             <SearchBySura/>
+                        </div>
+                        <div className="col-md-4">
+                            <SearchByDua/>
                         </div>
                     </div>
                 </div>

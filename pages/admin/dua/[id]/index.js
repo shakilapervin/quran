@@ -1,42 +1,91 @@
-import React, { useState } from 'react';
 import Layout from '../../../../components/admin/layouts/Layout';
-import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import axios from 'axios';
-import db from '../../../../utils/db';
-import Dua from '../../../../models/Dua';
-import User from '../../../../models/User';
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../../utils/session";
+import Skeleton, {SkeletonTheme} from 'react-loading-skeleton';
+import {useEffect, useState} from "react";
+import {ToastContainer, toast} from 'react-toastify';
+import Loader from "../../../../components/Loader";
 
-export default function Edit({ user, dua, id }) {
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
+export default function Edit({ user, id }) {
+    const [dua, setDua] = useState();
+    const [loading, setLoading] = useState(true);
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
+    useEffect(() => {
+        axios.get(
+            `${process.env.API_URL}/dua/${id}`,
+            headers
+        ).then(res => {
+            if (res.data.status === true) {
+                setDua(res.data.dua);
+                setLoading(false);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+    }, []);
     const handleForm = async (e) => {
         e.preventDefault();
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
         const banglaName = e.target.banglaName.value;
         const arabicName = e.target.arabicName.value;
         const arabicText = e.target.arabicText.value;
         const banglaText = e.target.banglaText.value;
+        const type = e.target.type.value;
         try {
             const response = await axios.post('/api/dua/update', {
                 banglaName: banglaName,
                 arabicName: arabicName,
                 banglaText: banglaText,
                 arabicText: arabicText,
+                type: type,
                 id,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
-                setTimeout(function () {
-                    setError(null);
-                    setSuccess(null);
-                }, 2000);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
-                setSuccess(null);
+            },headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
@@ -44,6 +93,12 @@ export default function Edit({ user, dua, id }) {
             <Head>
                 <title>Edit Dua</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
@@ -52,16 +107,6 @@ export default function Edit({ user, dua, id }) {
                 </div>
                 <div className="widgetArea">
                     <div className="content">
-                        {success !== null ? (
-                            <div className="alert alert-success">{success}</div>
-                        ) : (
-                            ''
-                        )}
-                        {error !== null ? (
-                            <div className="alert alert-danger">{error}</div>
-                        ) : (
-                            ''
-                        )}
                         <div className="formWrapper">
                             <form
                                 onSubmit={handleForm}
@@ -69,36 +114,85 @@ export default function Edit({ user, dua, id }) {
                             >
                                 <div className="form-group mb-2">
                                     <label>Bangla Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="banglaName"
-                                        id="banglaName"
-                                        defaultValue={dua.banglaName}
-                                    />
+                                    {
+                                        dua && loading === false && (
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                required
+                                                name="banglaName"
+                                                id="banglaName"
+                                                defaultValue={dua.banglaName}
+                                            />
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Arabic Name</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        required
-                                        name="arabicName"
-                                        id="arabicName"
-                                        dir="rtl"
-                                        defaultValue={dua.arabicName}
-                                    />
+                                    {
+                                        dua && loading === false && (
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                required
+                                                name="arabicName"
+                                                id="arabicName"
+                                                dir="rtl"
+                                                defaultValue={dua.arabicName}
+                                            />
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Dua in Arabic</label>
-                                    <textarea name="arabicText" cols="30" rows="10"
-                                              className="form-control" dir='rtl' defaultValue={dua.arabicText}/>
+                                    {
+                                        dua && loading === false && (
+                                            <textarea name="arabicText" cols="30" rows="10"
+                                                      className="form-control" dir='rtl' defaultValue={dua.arabicText}/>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={80}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <label>Dua in Bangla</label>
-                                    <textarea name="banglaText" cols="30" rows="10"
-                                              className="form-control" defaultValue={dua.banglaText}/>
+                                    {
+                                        dua && loading === false && (
+                                            <textarea name="banglaText" cols="30" rows="10"
+                                                      className="form-control" defaultValue={dua.banglaText}/>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={80}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
+                                </div>
+                                <div className="form-group mb-5">
+                                    <label>Type</label>
+                                    {
+                                        dua && loading === false && (
+                                            <select name="type" className="form-control" defaultValue={dua.type}>
+                                                <option value="1">প্রতিদিনের দোয়া</option>
+                                                <option value="2">সপ্তাহের দোয়া</option>
+                                                <option value="3">বিশেষ দোয়া</option>
+                                                <option value="4">প্রসিদ্ধ দোয়া</option>
+                                            </select>
+                                        ) || (
+                                            <SkeletonTheme baseColor="#ffffff" highlightColor="#F1F5F9">
+                                                <Skeleton width={`100%`} height={40}/>
+                                            </SkeletonTheme>
+                                        )
+                                    }
                                 </div>
                                 <div className="form-group mb-2">
                                     <button
@@ -117,28 +211,23 @@ export default function Edit({ user, dua, id }) {
     );
 }
 
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    const { params } = context;
-    const { id } = params;
-    if (!session) {
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req, params}) {
+        const session = req.session;
+        const id = params.id;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/day/${id}`,
+            props: {
+                user: session.user,
+                id
             },
         };
-    }
-
-    await db.connect();
-    const dua = await Dua.findOne({ _id: id }).lean();
-    const user = await User.findOne({ email: session.user.email }).lean();
-    await db.disconnect();
-
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-            dua: db.convertDocToObj(dua),
-            id: id,
-        },
-    };
-}
+    },
+    session
+);

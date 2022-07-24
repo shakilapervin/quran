@@ -1,39 +1,77 @@
 import {useState} from 'react';
-import {getSession} from 'next-auth/react';
 import Head from 'next/head';
 import Layout from '../../../components/admin/layouts/Layout';
 import styles from '../../../styles/AddNewSura.module.css';
 import axios from 'axios';
 import $ from 'jquery';
-import db from '../../../utils/db';
-import User from '../../../models/User';
+import {withIronSessionSsr} from "iron-session/next";
+import session from "../../../utils/session";
+import Loader from "../../../components/Loader";
+import {toast, ToastContainer} from "react-toastify";
 
 export default function AddNewSura({user}) {
-    const [success, setSuccess] = useState(null);
-    const [error, setError] = useState(null);
+    const [loader, setLoader] = useState(false);
+    const headers = {
+        headers: {Authorization: `Bearer ${user.token}`},
+    };
     const handleForm = async (e) => {
         e.preventDefault();
+        setLoader(true);
+        toast.loading('Saving', {
+            position: "bottom-left",
+            theme: 'dark'
+        });
         const arabicName = e.target.arabicName.value;
         const banglaName = e.target.banglaName.value;
         const arabicText = e.target.arabicText.value;
         const banglaText = e.target.banglaText.value;
+        const type = e.target.type.value;
         try {
-            const response = await axios.post('/api/dua/save', {
+            const response = await axios.post(`${process.env.API_URL}/dua/save`, {
                 banglaName: banglaName,
                 arabicName: arabicName,
                 banglaText: banglaText,
                 arabicText: arabicText,
-            });
-            if (response.data.success) {
-                setSuccess(response.data.success);
+                type: type,
+            },headers);
+            if (response.data.status === true) {
+                toast.dismiss();
+                toast.success('Saved', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
                 $('form').trigger('reset');
-                setError(null);
-            }
-            if (response.data.error) {
-                setError(response.data.error);
+                setLoader(false);
+            } else {
+                toast.dismiss();
+                toast.error('Something went wrong! Try again', {
+                    position: "bottom-left",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: 'dark',
+                });
+                setLoader(false);
             }
         } catch (err) {
-            setError(err.message);
+            toast.dismiss();
+            toast.error(err.response.statusText, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: 'dark',
+            });
+            setLoader(false);
         }
     };
     return (
@@ -41,6 +79,12 @@ export default function AddNewSura({user}) {
             <Head>
                 <title>Add New Dua</title>
             </Head>
+            {
+                loader && loader === true && (
+                    <Loader/>
+                )
+            }
+            <ToastContainer/>
             <Layout user={user}>
                 <div className="topBar">
                     <div className="content">
@@ -48,20 +92,6 @@ export default function AddNewSura({user}) {
                     </div>
                     <div className="widgetArea">
                         <div className="content">
-                            {success !== null ? (
-                                <div className="alert alert-success">
-                                    {success}
-                                </div>
-                            ) : (
-                                ''
-                            )}
-                            {error !== null ? (
-                                <div className="alert alert-danger">
-                                    {error}
-                                </div>
-                            ) : (
-                                ''
-                            )}
                             <div className={styles.formWrapper}>
                                 <form onSubmit={handleForm}>
                                     <div className="form-group mb-2">
@@ -95,6 +125,15 @@ export default function AddNewSura({user}) {
                                         <textarea name="banglaText" cols="30" rows="10"
                                                   className="form-control"/>
                                     </div>
+                                    <div className="form-group mb-5">
+                                        <label>Type</label>
+                                        <select name="type" className="form-control">
+                                            <option value="1">প্রতিদিনের দোয়া</option>
+                                            <option value="2">সপ্তাহের দোয়া</option>
+                                            <option value="3">বিশেষ দোয়া</option>
+                                            <option value="4">প্রসিদ্ধ দোয়া</option>
+                                        </select>
+                                    </div>
                                     <div className="form-group mb-2">
                                         <button
                                             type="submit"
@@ -113,27 +152,21 @@ export default function AddNewSura({user}) {
     );
 }
 
-export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session) {
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({req}) {
+        const session = req.session;
+        if (!session.user) {
+            return {
+                redirect: {
+                    destination: `/admin`,
+                },
+            };
+        }
         return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
+            props: {
+                user: session.user
             },
         };
-    }
-    await db.connect();
-    const user = await User.findOne({email: session.user.email}).lean();
-    if (!user) {
-        return {
-            redirect: {
-                destination: `/api/auth/signin?callbackUrl=${process.env.NEXTAUTH_URL}/admin/sura/add-new`,
-            },
-        };
-    }
-    return {
-        props: {
-            user: db.convertDocToObj(user),
-        },
-    };
-}
+    },
+    session
+);
