@@ -1,7 +1,7 @@
 @import url('https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css');
 @font-face {
     font-family: ParsQuran;
-    src: url('../public/fonts/UthmanTN.otf');
+    src: url('/fonts/UthmanTN.otf');
 }
 html,
 body {
