@@ -95,7 +95,7 @@ function AddNewChapter({ user , id  }) {
         }
     };
     (0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)(()=>{
-        axios__WEBPACK_IMPORTED_MODULE_4___default().get(`${"https://almunji.webxcode.xyz/api"}/sura/${id}`, headers).then((res)=>{
+        axios__WEBPACK_IMPORTED_MODULE_4___default().get(`${"https://api.almunji.com/api"}/sura/${id}`, headers).then((res)=>{
             if (res.data.status === true) {
                 setSura(res.data.sura);
                 setLoading(false);
@@ -121,7 +121,7 @@ function AddNewChapter({ user , id  }) {
         const longTafsil = jquery__WEBPACK_IMPORTED_MODULE_5___default()(".tafsilLong .jodit-wysiwyg").html();
         const serial = e.target.serial.value;
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_4___default().post(`${"https://almunji.webxcode.xyz/api"}/chapter/save`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_4___default().post(`${"https://api.almunji.com/api"}/chapter/save`, {
                 arabic,
                 bangla,
                 shortTafsil,

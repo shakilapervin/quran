@@ -55,7 +55,7 @@ function ChapterList({ user , sura  }) {
     };
     async function getChapters() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://almunji.webxcode.xyz/api"}/${sura}/chapter`, headers);
+            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://api.almunji.com/api"}/${sura}/chapter`, headers);
             if (res.data.status === true) {
                 if (res.data.chapters.data) {
                     setChapters(res.data.chapters.data);
@@ -95,7 +95,7 @@ function ChapterList({ user , sura  }) {
             theme: "dark"
         });
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://almunji.webxcode.xyz/api"}/chapter/delete`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://api.almunji.com/api"}/chapter/delete`, {
                 id: id
             }, headers);
             if (response.data.status === true) {

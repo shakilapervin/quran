@@ -61,7 +61,7 @@ function Search({ keyword  }) {
     const { 0: links , 1: setLinks  } = (0,react__WEBPACK_IMPORTED_MODULE_7__.useState)([]);
     async function getResults() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_6___default().post(`${"https://almunji.webxcode.xyz/api"}/search/chapters`, {
+            const res = await axios__WEBPACK_IMPORTED_MODULE_6___default().post(`${"https://api.almunji.com/api"}/search/chapters`, {
                 keyword
             });
             if (res.data.status === true) {

@@ -94,7 +94,7 @@ function AddNewSura({ user  }) {
         const banglaText = e.target.banglaText.value;
         const type = e.target.type.value;
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_4___default().post(`${"https://almunji.webxcode.xyz/api"}/dua/save`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_4___default().post(`${"https://api.almunji.com/api"}/dua/save`, {
                 banglaName: banglaName,
                 arabicName: arabicName,
                 banglaText: banglaText,

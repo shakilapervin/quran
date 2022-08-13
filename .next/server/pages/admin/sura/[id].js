@@ -69,7 +69,7 @@ function Edit({ user , id  }) {
         }
     };
     (0,react__WEBPACK_IMPORTED_MODULE_7__.useEffect)(()=>{
-        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://almunji.webxcode.xyz/api"}/sura/${id}`, headers).then((res)=>{
+        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://api.almunji.com/api"}/sura/${id}`, headers).then((res)=>{
             if (res.data.status === true) {
                 setSura(res.data.sura);
                 setLoading(false);
@@ -89,7 +89,7 @@ function Edit({ user , id  }) {
         const banglaName = e.target.banglaName.value;
         const serial = e.target.serial.value;
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://almunji.webxcode.xyz/api"}/sura/update`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://api.almunji.com/api"}/sura/update`, {
                 banglaName: banglaName,
                 arabicName: arabicName,
                 serial_no: serial,

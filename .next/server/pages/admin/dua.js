@@ -55,7 +55,7 @@ function DuaList({ user  }) {
     };
     async function getDuas() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://almunji.webxcode.xyz/api"}/dua`, headers);
+            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://api.almunji.com/api"}/dua`, headers);
             if (res.data.status === true) {
                 if (res.data.duas.data) {
                     setDuas(res.data.duas.data);
@@ -95,7 +95,7 @@ function DuaList({ user  }) {
             theme: "dark"
         });
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://almunji.webxcode.xyz/api"}/dua/delete`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://api.almunji.com/api"}/dua/delete`, {
                 id: id
             }, headers);
             if (response.data.status === true) {

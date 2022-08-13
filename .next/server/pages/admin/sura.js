@@ -55,7 +55,7 @@ function SuraList({ user  }) {
     };
     async function getSuras() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://almunji.webxcode.xyz/api"}/sura`, headers);
+            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().get(`${"https://api.almunji.com/api"}/sura`, headers);
             console.log(res.data.suras);
             if (res.data.status === true) {
                 if (res.data.suras.data) {
@@ -96,7 +96,7 @@ function SuraList({ user  }) {
             theme: "dark"
         });
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://almunji.webxcode.xyz/api"}/sura/delete`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://api.almunji.com/api"}/sura/delete`, {
                 id: id
             }, headers);
             console.log(response.data);

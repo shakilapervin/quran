@@ -69,7 +69,7 @@ function Edit({ user , id  }) {
         }
     };
     (0,react__WEBPACK_IMPORTED_MODULE_7__.useEffect)(()=>{
-        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://almunji.webxcode.xyz/api"}/dua/${id}`, headers).then((res)=>{
+        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://api.almunji.com/api"}/dua/${id}`, headers).then((res)=>{
             if (res.data.status === true) {
                 setDua(res.data.dua);
                 setLoading(false);

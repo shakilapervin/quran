@@ -42,7 +42,7 @@ function Sura({ sura , chapter  }) {
     const { 0: loading , 1: setLoading  } = (0,react__WEBPACK_IMPORTED_MODULE_6__.useState)(true);
     async function getChapters() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://almunji.webxcode.xyz/api"}/frontend/chapters`, {
+            const res = await axios__WEBPACK_IMPORTED_MODULE_5___default().post(`${"https://api.almunji.com/api"}/frontend/chapters`, {
                 sura,
                 chapter
             });

@@ -37,7 +37,7 @@ function Dua({ id  }) {
     const { 0: loading , 1: setLoading  } = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(true);
     async function getDua() {
         try {
-            const res = await axios__WEBPACK_IMPORTED_MODULE_4___default().get(`${"https://almunji.webxcode.xyz/api"}/dua/${id}`);
+            const res = await axios__WEBPACK_IMPORTED_MODULE_4___default().get(`${"https://api.almunji.com/api"}/dua/${id}`);
             if (res.data.status === true) {
                 if (res.data.dua) {
                     setDua(res.data.dua);

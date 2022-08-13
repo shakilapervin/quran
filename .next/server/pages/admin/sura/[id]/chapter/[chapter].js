@@ -83,7 +83,7 @@ function Edit({ user , id , sura  }) {
         }
     };
     (0,react__WEBPACK_IMPORTED_MODULE_5__.useEffect)(()=>{
-        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://almunji.webxcode.xyz/api"}/chapter/${id}`, headers).then((res)=>{
+        axios__WEBPACK_IMPORTED_MODULE_3___default().get(`${"https://api.almunji.com/api"}/chapter/${id}`, headers).then((res)=>{
             if (res.data.status === true) {
                 setChapter(res.data.chapter);
                 setLoading(false);
@@ -109,7 +109,7 @@ function Edit({ user , id , sura  }) {
         const longTafsil = jquery__WEBPACK_IMPORTED_MODULE_6___default()(".tafsilLong .jodit-wysiwyg").html();
         const serial = e.target.serial.value;
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://almunji.webxcode.xyz/api"}/chapter/update`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://api.almunji.com/api"}/chapter/update`, {
                 arabic,
                 bangla,
                 shortTafsil,

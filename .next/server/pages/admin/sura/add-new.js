@@ -92,7 +92,7 @@ function AddNewSura({ user  }) {
         const banglaName = e.target.banglaName.value;
         const serial = e.target.serial.value;
         try {
-            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://almunji.webxcode.xyz/api"}/sura/save`, {
+            const response = await axios__WEBPACK_IMPORTED_MODULE_3___default().post(`${"https://api.almunji.com/api"}/sura/save`, {
                 banglaName: banglaName,
                 arabicName: arabicName,
                 serial_no: serial
