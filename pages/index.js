@@ -2,7 +2,6 @@ import Head from 'next/head';
 import CustomImage from '../components/CustomImage';
 import SearchByText from '../components/frontend/SearchByText';
 import SearchBySura from '../components/frontend/SearchBySura';
-import Link from 'next/link';
 import styles from '../styles/Home.module.css'
 import SearchByDua from "../components/frontend/SearchByDua";
 
