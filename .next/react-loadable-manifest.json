@@ -1,16 +1,1 @@
-{
-  "admin\\sura\\[id]\\chapter\\[chapter].js -> jodit-react": {
-    "id": 2911,
-    "files": [
-      "static/chunks/f70991a6.aa845bdc69a34ed1.js",
-      "static/chunks/911.ca456009ba66b221.js"
-    ]
-  },
-  "admin\\sura\\[id]\\chapter\\add-new.js -> jodit-react": {
-    "id": 2911,
-    "files": [
-      "static/chunks/f70991a6.aa845bdc69a34ed1.js",
-      "static/chunks/911.ca456009ba66b221.js"
-    ]
-  }
-}
+{}

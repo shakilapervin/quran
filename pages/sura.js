@@ -123,12 +123,12 @@ export default function Sura({sura, chapter}) {
                         <div className="col-md-3 text-center">
                             <a className={`btn btn-lg btn-primary mb-5 ${!nextPage ? 'disabled' : ''}`}
                                onClick={() => paginate(nextPage)}
-                               dangerouslySetInnerHTML={{__html: 'صفحه بعد>>'}} dir={'ltr'}/>
+                               dangerouslySetInnerHTML={{__html: 'পরবর্তী>>'}} dir={'ltr'}/>
                         </div>
                         <div className="col-md-3 text-center">
                             <a className={`btn btn-lg btn-primary mb-5 ${!previousPage ? 'disabled' : ''}`}
                                onClick={() => paginate(previousPage)}
-                               dangerouslySetInnerHTML={{__html: '<<صفحه قبل'}} dir={'ltr'}/>
+                               dangerouslySetInnerHTML={{__html: '<<পূর্ববর্তী'}} dir={'ltr'}/>
                         </div>
                     </div>
                 </Page>

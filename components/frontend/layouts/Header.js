@@ -7,43 +7,8 @@ export default function Header() {
     return (
         <>
             <div className={`container ${styles.header}`}>
-                <div className="row align-items-center justify-content-end">
-                    <div className="col">
-                        <Link href={`/`}>
-                            <a>
-                                বাংলা
-                            </a>
-                        </Link>
-                    </div>
-                    <div className="col">
-                        <Link href={`/`}>
-                            <a>
-                                مقالات
-                            </a>
-                        </Link>
-                    </div>
-                    <div className="col">
-                        <Link href={`/`}>
-                            <a>
-                                مقالات
-                            </a>
-                        </Link>
-                    </div>
-                    <div className="col">
-                        <Link href={`/`}>
-                            <a>
-                                فهرست قرآن
-                            </a>
-                        </Link>
-                    </div>
-                    <div className="col">
-                        <Link href={`/`}>
-                            <a>
-                                صفحه اول
-                            </a>
-                        </Link>
-                    </div>
-                    <div className="col">
+                <div className="row justify-content-center">
+                    <div className="col text-center">
                         <Link href={`/`}>
                             <a>
                                 <Image src='/logo.jpg' width={100} height={100}/>

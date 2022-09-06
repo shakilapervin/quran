@@ -46,14 +46,14 @@ export default function SearchBySura() {
     }
     return (
         <>
-            <div className={styles.searchBoxTitle}> متن قرآن</div>
+            <div className={styles.searchBoxTitle}>কুরআন</div>
             <div className={styles.searchFieldWrapper}>
                 <form action={`/sura`} method={`get`}>
                     <div className="row align-items-center">
                         <div className="col-md-12">
                             <div className="row align-items-center mb-3">
                                 <label className="col-md-2 col-form-label">
-                                    سوره:
+                                    সূরা:
                                 </label>
                                 <div className="col-md-10">
                                     <select name="sura" className={`form-control ${styles.dropdown} sura`}
@@ -72,7 +72,7 @@ export default function SearchBySura() {
                             </div>
                             <div className="row align-items-center mb-3">
                                 <label className="col-md-2 col-form-label">
-                                    آيه:
+                                    আয়াত:
                                 </label>
                                 <div className="col-md-10">
                                     <select name="chapter" className={`form-control ${styles.dropdown}`}>
@@ -91,7 +91,7 @@ export default function SearchBySura() {
                             <div className="row align-items-center">
                                 <div className="col-md-2"/>
                                 <div className="col-md-10">
-                                    <button className={`btn btn-dark`} type={`submit`}>جستجو</button>
+                                    <button className={`btn btn-dark`} type={`submit`}>অনুসন্ধান</button>
                                 </div>
                             </div>
                         </div>

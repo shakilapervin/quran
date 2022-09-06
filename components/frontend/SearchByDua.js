@@ -44,14 +44,14 @@ export default function SearchByDua() {
     }
     return (
         <>
-            <div className={styles.searchBoxTitle}>دعا</div>
+            <div className={styles.searchBoxTitle}>দোয়া</div>
             <div className={styles.searchFieldWrapper}>
                 <form action={`/dua`} method={`get`}>
                     <div className="row align-items-center">
                         <div className="col-md-12">
                             <div className="row align-items-center mb-3">
                                 <label className="col-md-2 col-form-label">
-                                    سوره:
+                                    দোয়া:
                                 </label>
                                 <div className="col-md-10">
                                     <select className={`form-control ${styles.dropdown} dua`}
@@ -65,7 +65,7 @@ export default function SearchByDua() {
                             </div>
                             <div className="row align-items-center mb-3">
                                 <label className="col-md-2 col-form-label">
-                                    آيه:
+                                    ক্রমিক নং:
                                 </label>
                                 <div className="col-md-10">
                                     <select name="id" className={`form-control ${styles.dropdown}`}>
@@ -84,7 +84,7 @@ export default function SearchByDua() {
                             <div className="row align-items-center">
                                 <div className="col-md-2"/>
                                 <div className="col-md-10">
-                                    <button className={`btn btn-dark`} type={`submit`}>جستجو</button>
+                                    <button className={`btn btn-dark`} type={`submit`}>অনুসন্ধান</button>
                                 </div>
                             </div>
                         </div>
